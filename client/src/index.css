@@ -22,10 +22,12 @@ body {
   background-image: linear-gradient(45deg, #85ffbd 0%, #fffb7d 100%);
   background-color: #d9afd9;
   background-image: linear-gradient(0deg, #d9afd9 0%, #97d9e1 100%); */
-  background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+  /* background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%); */
 
   height: 100vh;
 }
-/* #root {
+#root {
+  height: 100vh;
+  width: 100%;
   display: flex;
-} */
+}
