@@ -14,16 +14,18 @@ const s = io("http://localhost:4000/");
 
 interface DataFromServer {
   labels: number[];
-  values: number[];
-}
-interface StateData {
-  temperature: DataFromServer;
-  humidity: DataFromServer;
-  light: DataFromServer;
+  valueTemperature: number[];
+  valueHumidity: number[];
+  valueLight: number[];
 }
 
 function App() {
-  const [data, setData] = useState<DataFromServer>({ labels: [], values: [] });
+  const [data, setData] = useState<DataFromServer>({
+    labels: [],
+    valueHumidity: [],
+    valueLight: [],
+    valueTemperature: [],
+  });
 
   const [checkedLight, setCheckedLight] = useState<boolean>(true);
   const [checkedFan, setCheckedFan] = useState<boolean>(false);
@@ -35,14 +37,21 @@ function App() {
       setData((prev) => {
         const checkData = {
           labels: [...prev.labels, newData.label],
-          values: [...prev.values, newData.value],
+          valueTemperature: [
+            ...prev.valueTemperature,
+            newData.valueTemperature,
+          ],
+          valueHumidity: [...prev.valueHumidity, newData.valueHumidity],
+          valueLight: [...prev.valueLight, newData.valueLight],
         };
         const updatedData = checkData;
         // console.log(updatedData);
 
-        if (checkData.labels.length > 6) {
+        if (checkData.labels.length > 12) {
           updatedData.labels.shift();
-          updatedData.values.shift();
+          updatedData.valueTemperature.shift();
+          updatedData.valueHumidity.shift();
+          updatedData.valueLight.shift();
         }
         // console.log(updatedData);
 
@@ -64,7 +73,9 @@ function App() {
         height: "100vh",
         width: "100%",
         backgroundImage: `${
-          data.values.reduce((p, c) => p + c, 0) / data.values.length < 50
+          data.valueTemperature.reduce((p, c) => p + c, 0) /
+            data.valueTemperature.length <
+          50
             ? "linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%)"
             : "linear-gradient(120deg, #f6d365 0%, #fda085 100%)"
         }`,
@@ -83,14 +94,14 @@ function App() {
               sx={{ verticalAlign: "middle" }}
               color={"error"}
             />
-            Nhiệt độ
+            Nhiệt độ (°C)
             <Typography
               variant="h5"
               component="h5"
               color={"red"}
               marginLeft={3}
             >
-              {data.values[data.values.length - 1]}
+              {data.valueTemperature[data.valueTemperature.length - 1]}
             </Typography>
           </Typography>
           <LineChart
@@ -114,7 +125,7 @@ function App() {
               {
                 color: "#ff0000",
                 yAxisKey: "a",
-                data: data.values,
+                data: data.valueTemperature,
                 // area: true,
                 curve: "catmullRom",
               },
@@ -129,14 +140,14 @@ function App() {
               sx={{ verticalAlign: "middle" }}
               color={"primary"}
             />
-            Độ ẩm
+            Độ ẩm (%)
             <Typography
               variant="h5"
               component="h5"
               color={"blue"}
               marginLeft={3}
             >
-              {data.values[data.values.length - 1]}
+              {data.valueHumidity[data.valueHumidity.length - 1]}
             </Typography>
           </Typography>
           <LineChart
@@ -160,7 +171,7 @@ function App() {
               {
                 color: "blue",
                 yAxisKey: "a",
-                data: data.values,
+                data: data.valueHumidity,
                 // area: true,
                 curve: "catmullRom",
               },
@@ -175,14 +186,14 @@ function App() {
               sx={{ verticalAlign: "middle" }}
               color="warning"
             />
-            Ánh sáng
+            Ánh sáng (lx)
             <Typography
               variant="h5"
               component="h5"
               color={"#ff6d00"}
               marginLeft={3}
             >
-              {data.values[data.values.length - 1]}
+              {data.valueLight[data.valueLight.length - 1]}
             </Typography>
           </Typography>
           <LineChart
@@ -199,14 +210,14 @@ function App() {
                 scaleType: "linear",
                 min: 0,
                 max: 120,
-                label: "Nhiệt độ (°C)",
+                label: "Độ rọi (lx)",
               },
             ]}
             series={[
               {
                 color: "yellow",
                 yAxisKey: "a",
-                data: data.values,
+                data: data.valueLight,
                 // area: true,
                 curve: "catmullRom",
               },

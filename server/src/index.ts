@@ -30,7 +30,9 @@ io.on("connection", (socket) => {
         count += 1;
         const newData = {
             label: count,
-            value: Math.floor(Math.random() * 100),
+            valueTemperature: Math.floor(Math.random() * 100),
+            valueHumidity: Math.floor(Math.random() * 100),
+            valueLight: Math.floor(Math.random() * 100),
         };
         io.emit("dataUpdate", newData);
     }, 1000)
