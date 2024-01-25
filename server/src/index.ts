@@ -1,11 +1,25 @@
 import express from "express";
+import cors from 'cors';
 import { Server } from "socket.io";
 
+
+import { saveDataSensor } from "./controllers/dataSensor.controller";
+
+
+
+
+
+
 const app = express()
+
+app.use(express.json())
+app.use(cors())
 
 app.get('/', (req, res) => {
     return res.send('hello world')
 })
+
+
 
 const PORT = process.env.PORT || 4000
 
@@ -34,21 +48,17 @@ io.on("connection", (socket) => {
             valueHumidity: Math.floor(Math.random() * 100),
             valueLight: Math.floor(Math.random() * 100),
         };
+        saveDataSensor({
+            humidity: newData.valueHumidity.toString(),
+            temperature: newData.valueTemperature.toString(),
+            light: newData.valueLight.toString(),
+        })
         io.emit("dataUpdate", newData);
     }, 1000)
-
-    // setInterval(() => {
-
-
-    //     // Emit data to all connected clients
-    //     io.emit('dataUpdate', newData);
-    // }, 1000);
 
 
     socket.on("disconnect", () => {
         console.log("socket disconnect");
-        // characters = characters.filter(
-        //     (value) => value.id !== socket.id)
     });
 });
 
