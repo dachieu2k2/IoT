@@ -7,6 +7,6 @@ export interface IParams {
     page: number
     limit: number
     orderBy: string
-    sortBy: SortByEnum
+    sortBy: string
     s?: string
 }

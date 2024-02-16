@@ -3,7 +3,7 @@ import cors from 'cors';
 import { Server } from "socket.io";
 
 
-import { saveDataSensor } from "./controllers/dataSensor.controller";
+import { getDataSensors, saveDataSensor } from "./controllers/dataSensor.controller";
 
 
 
@@ -17,6 +17,24 @@ app.use(cors())
 
 app.get('/', (req, res) => {
     return res.send('hello world')
+})
+
+app.get('/api/datasensors', async (req, res) => {
+    try {
+        const { page = 1, limit = 10, orderBy = 'id', order = 'ASC', s = '' } = req.query
+
+        console.log(page, limit, orderBy, order, s);
+
+
+        const data = await getDataSensors({ page: +page, limit: +limit, orderBy: orderBy.toString(), sortBy: order.toString(), s: s?.toString() })
+        // console.log('data index: ', data);
+
+
+        return res.json({ success: true, data: data })
+    } catch (error) {
+        console.log(error);
+
+    }
 })
 
 
@@ -48,13 +66,13 @@ io.on("connection", (socket) => {
             valueHumidity: Math.floor(Math.random() * 100),
             valueLight: Math.floor(Math.random() * 100),
         };
-        saveDataSensor({
-            humidity: newData.valueHumidity.toString(),
-            temperature: newData.valueTemperature.toString(),
-            light: newData.valueLight.toString(),
-        })
+        // saveDataSensor({
+        //     humidity: newData.valueHumidity.toString(),
+        //     temperature: newData.valueTemperature.toString(),
+        //     light: newData.valueLight.toString(),
+        // })
         io.emit("dataUpdate", newData);
-    }, 1000)
+    }, 10000)
 
 
     socket.on("disconnect", () => {
