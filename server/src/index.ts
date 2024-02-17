@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 
 
 import { getDataSensors, saveDataSensor } from "./controllers/dataSensor.controller";
+import { getActionHistorys, saveActionHistory } from "./controllers/actionHistory.controller";
 
 
 
@@ -27,6 +28,24 @@ app.get('/api/datasensors', async (req, res) => {
 
 
         const data = await getDataSensors({ page: +page, limit: +limit, orderBy: orderBy.toString(), sortBy: order.toString(), s: s?.toString() })
+        // console.log('data index: ', data);
+
+
+        return res.json({ success: true, data: data })
+    } catch (error) {
+        console.log(error);
+
+    }
+})
+
+app.get('/api/actionhistory', async (req, res) => {
+    try {
+        const { page = 1, limit = 10, orderBy = 'id', order = 'ASC', s = '' } = req.query
+
+        console.log(page, limit, orderBy, order, s);
+
+
+        const data = await getActionHistorys({ page: +page, limit: +limit, orderBy: orderBy.toString(), sortBy: order.toString(), s: s?.toString() })
         // console.log('data index: ', data);
 
 
@@ -71,8 +90,13 @@ io.on("connection", (socket) => {
         //     temperature: newData.valueTemperature.toString(),
         //     light: newData.valueLight.toString(),
         // })
+
+        // saveActionHistory({
+        //     device: Math.floor(Math.random() * 100) > 50 ? 'Light' : 'Fan',
+        //     act: Math.floor(Math.random() * 100) > 50 ? 'Off' : 'On',
+        // })
         io.emit("dataUpdate", newData);
-    }, 10000)
+    }, 1000)
 
 
     socket.on("disconnect", () => {

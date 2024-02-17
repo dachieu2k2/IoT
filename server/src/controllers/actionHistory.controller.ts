@@ -12,17 +12,59 @@ export const saveActionHistory = async (actionHistory: ActionHistory) => {
 // pagination/ sort/ search/ filter?
 export const getActionHistorys = async ({ page, limit, orderBy, sortBy, s }: IParams) => {
     try {
+
         const offset = (page - 1) * limit
 
-        const [data] = await pool.execute('SELECT * FROM action_history LIMIT ? OFFSET ? ORDER BY ? ? WHERE MATCH(device, act) AGAINST (? IN BOOLEAN MODE)', [limit, offset, orderBy, sortBy, s])
+        let query = 'SELECT * FROM action_history'
 
-        const [totalPage] = await pool.execute('SELECT count(*) FROM action_history')
+        if (s) {
+            query += ` WHERE MATCH(device, act) AGAINST (${s} IN BOOLEAN MODE)`
+        }
 
-        // const totalPage = Math.ceil(+totalPageData[0]?.count /limit)
+
+        if (orderBy) {
+            // query += ' ORDER BY ? ?'
+            query += ` ORDER BY ${orderBy} ${sortBy}`
+        }
+
+
+        if (limit && page) {
+            query += ` LIMIT ${+limit} OFFSET ${+offset}`
+        }
+
+        console.log(query);
+
+
+
+
+        // console.log(offset);
+
+
+        // const [data] = await pool.execute('SELECT * FROM data_sensor LIMIT ? OFFSET ? ORDER BY ? ? WHERE MATCH(temperature, humidity, light) AGAINST (? IN BOOLEAN MODE)', [limit, offset, orderBy, sortBy, s])
+        const [data] = await pool.execute(query)
+
+
+        const [totalPageData] = await pool.execute('SELECT count(*) FROM action_history')
+        console.log(totalPageData);
+
+
+        const totalPage = +limit === 0 ? 1 : Math.ceil(+(totalPageData as unknown as any)[0]?.['count(*)'] / limit)
+
+        // console.log({
+        //     data,
+        //     totalPage,
+        //     page,
+        //     limit,
+        //     orderBy,
+        //     sortBy,
+        //     s
+        // });
+
         return {
             data,
             totalPage,
-            page,
+            total: +(totalPageData as unknown as any)[0]?.['count(*)'],
+            page: +limit === 0 ? 1 : page,
             limit,
             orderBy,
             sortBy,

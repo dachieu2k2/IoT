@@ -21,6 +21,7 @@ interface IProps {
   icon: ReactNode;
   title: string;
   total: number;
+  gradientColor: string;
 }
 
 export default function AppWidgetSummary({
@@ -28,6 +29,7 @@ export default function AppWidgetSummary({
   total,
   icon,
   color = "primary",
+  gradientColor,
   ...other
 }: IProps) {
   return (
@@ -35,7 +37,7 @@ export default function AppWidgetSummary({
       sx={{
         boxShadow: 0,
         textAlign: "center",
-        color: (theme) => (theme.palette[color] as PaletteColor).dark,
+        // color: (theme) => (theme.palette[color] as PaletteColor).dark,
         bgcolor: (theme) => (theme.palette[color] as PaletteColor).light,
         height: "100%",
         display: "flex",
@@ -44,6 +46,7 @@ export default function AppWidgetSummary({
         justifyContent: "center",
 
         // backgroundImage: "linear-gradient(120deg, #f6d365 0%, #fda085 100%)",
+        backgroundImage: gradientColor,
       }}
       {...other}
     >
@@ -65,7 +68,11 @@ export default function AppWidgetSummary({
         {total}
       </Typography>
 
-      <Typography variant="subtitle2" color={"white"} sx={{ opacity: 0.72 }}>
+      <Typography
+        variant="subtitle2"
+        color={"white"}
+        // sx={{ opacity: 0.72 }}
+      >
         {title}
       </Typography>
     </Card>

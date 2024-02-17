@@ -85,6 +85,7 @@ function Dashboard() {
       >
         <Grid xs={4} height={"25vh"} item>
           <AppWidgetSummary
+            gradientColor="linear-gradient(to top, #ff0844 0%, #ffb199 100%)"
             color="error"
             icon={
               <ThermostatOutlinedIcon
@@ -99,12 +100,13 @@ function Dashboard() {
         </Grid>
         <Grid xs={4} height={"25vh"} item>
           <AppWidgetSummary
-            color="primary"
+            gradientColor="linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)"
+            color="secondary"
             icon={
               <WaterDropOutlinedIcon
                 sx={{ verticalAlign: "middle" }}
                 fontSize={"large"}
-                color={"primary"}
+                color={"secondary"}
               />
             }
             title={"Độ ẩm (%)"}
@@ -113,12 +115,13 @@ function Dashboard() {
         </Grid>
         <Grid xs={4} height={"25vh"} item>
           <AppWidgetSummary
+            gradientColor="linear-gradient(-225deg, #FFE29F 0%, #FFA99F 48%, #FF719A 100%)"
             color="warning"
             icon={
               <LightModeOutlinedIcon
                 sx={{ verticalAlign: "middle" }}
                 fontSize={"large"}
-                color={"warning"}
+                color={"inherit"}
               />
             }
             title={"Ánh sáng (lx)"}
@@ -130,7 +133,7 @@ function Dashboard() {
             sx={{ transition: "0.4s all linear" }}
             xAxis={[
               {
-                scaleType: "point",
+                // scaleType: "point",
                 data: data.labels,
                 label: "Thời gian (s)",
               },
@@ -153,7 +156,7 @@ function Dashboard() {
             ]}
             series={[
               {
-                color: "#ff0000",
+                color: "#ff0844",
                 yAxisKey: "Nhiet do",
                 data: data.valueTemperature,
                 // area: true,
@@ -161,7 +164,7 @@ function Dashboard() {
                 label: "Nhiệt độ",
               },
               {
-                color: "blue",
+                color: "#a1c4fd",
                 yAxisKey: "Nhiet do",
                 data: data.valueHumidity,
                 // area: true,
@@ -169,7 +172,7 @@ function Dashboard() {
                 label: "Độ ẩm",
               },
               {
-                color: "yellow",
+                color: "#FFE29F",
                 yAxisKey: "Anh sang",
                 data: data.valueLight,
                 // area: true,
@@ -248,262 +251,12 @@ function Dashboard() {
                     }}
                   />
                   Quạt
-                  <style>{`
-            @keyframes spin {
-                 0% { transform: rotate(360deg); }
-                 100% { transform: rotate(0deg); }
-            }
-
-            @keyframes neon {
-              from {
-                filter: drop-shadow( 0 0 5px #fff) drop-shadow( 0 0 15px green) drop-shadow( 0 0 20px green);
-              }
-            
-              to {
-                
-                filter: drop-shadow( 0 0 20px #fff) drop-shadow( 0 0 25px green) drop-shadow( 0 0 40px green);
-              }
-            }
-              `}</style>
                 </Typography>
               }
             />
           </Stack>
         </Grid>
       </Grid>
-
-      {/* <Stack
-          direction={"row"}
-          spacing={2}
-          marginTop={10}
-          justifyContent={"center"}
-        >
-          <Box justifyContent={"center"}>
-            <Typography variant="h5" component="h5">
-              <ThermostatOutlinedIcon
-                sx={{ verticalAlign: "middle" }}
-                color={"error"}
-              />
-              Nhiệt độ (°C)
-              <Typography
-                variant="h5"
-                component="h5"
-                color={"red"}
-                marginLeft={3}
-              >
-                {data.valueTemperature[data.valueTemperature.length - 1]}
-              </Typography>
-            </Typography>
-            <LineChart
-              xAxis={[
-                {
-                  scaleType: "point",
-                  data: data.labels,
-                  label: "Thời gian (s)",
-                },
-              ]}
-              yAxis={[
-                {
-                  id: "a",
-                  scaleType: "linear",
-                  min: 0,
-                  max: 120,
-                  label: "Nhiệt độ (°C)",
-                },
-              ]}
-              series={[
-                {
-                  color: "#ff0000",
-                  yAxisKey: "a",
-                  data: data.valueTemperature,
-                  // area: true,
-                  curve: "catmullRom",
-                },
-              ]}
-              width={400}
-              height={300}
-            />
-          </Box>
-          <Box justifyContent={"center"}>
-            <Typography variant="h5" component="h5">
-              <WaterDropOutlinedIcon
-                sx={{ verticalAlign: "middle" }}
-                color={"primary"}
-              />
-              Độ ẩm (%)
-              <Typography
-                variant="h5"
-                component="h5"
-                color={"blue"}
-                marginLeft={3}
-              >
-                {data.valueHumidity[data.valueHumidity.length - 1]}
-              </Typography>
-            </Typography>
-            <LineChart
-              xAxis={[
-                {
-                  scaleType: "point",
-                  data: data.labels,
-                  label: "Thời gian (s)",
-                },
-              ]}
-              yAxis={[
-                {
-                  id: "a",
-                  scaleType: "linear",
-                  min: 0,
-                  max: 100,
-                  label: "Phần trăm (%)",
-                },
-              ]}
-              series={[
-                {
-                  color: "blue",
-                  yAxisKey: "a",
-                  data: data.valueHumidity,
-                  // area: true,
-                  curve: "catmullRom",
-                },
-              ]}
-              width={400}
-              height={300}
-            />
-          </Box>
-          <Box justifyContent={"center"}>
-            <Typography variant="h5" component="h5">
-              <LightModeOutlinedIcon
-                sx={{ verticalAlign: "middle" }}
-                color="warning"
-              />
-              Ánh sáng (lx)
-              <Typography
-                variant="h5"
-                component="h5"
-                color={"#ff6d00"}
-                marginLeft={3}
-              >
-                {data.valueLight[data.valueLight.length - 1]}
-              </Typography>
-            </Typography>
-            <LineChart
-              xAxis={[
-                {
-                  scaleType: "point",
-                  data: data.labels,
-                  label: "Thời gian (s)",
-                },
-              ]}
-              yAxis={[
-                {
-                  id: "a",
-                  scaleType: "linear",
-                  min: 0,
-                  max: 120,
-                  label: "Độ rọi (lx)",
-                },
-              ]}
-              series={[
-                {
-                  color: "yellow",
-                  yAxisKey: "a",
-                  data: data.valueLight,
-                  // area: true,
-                  curve: "catmullRom",
-                },
-              ]}
-              width={400}
-              height={300}
-            />
-          </Box>
-        </Stack>
-
-        <Stack
-          direction={"row"}
-          spacing={2}
-          justifyContent={"center"}
-          marginTop={10}
-        >
-          <FormControlLabel
-            control={
-              <Switch
-                defaultChecked
-                color="success"
-                onChange={(event) => {
-                  setCheckedLight(event.target.checked);
-                }}
-              />
-            }
-            label={
-              <Typography variant="h5" component="h5">
-                {checkedLight ? (
-                  <LightbulbIcon
-                    sx={{ verticalAlign: "middle" }}
-                    color="success"
-                    fontSize="large"
-                    style={{
-                      transition: ` all 1s ease-in-out`,
-                      animation: `${
-                        checkedLight && "neon"
-                      } 1.5s ease-in-out infinite alternate`,
-                    }}
-                  />
-                ) : (
-                  <LightbulbOutlinedIcon
-                    sx={{ verticalAlign: "middle" }}
-                    color="success"
-                    fontSize="large"
-                    style={{
-                      transition: ` all 1s ease-in-out`,
-                    }}
-                  />
-                )}
-                Đèn
-              </Typography>
-            }
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                color="warning"
-                onChange={(event) => {
-                  setCheckedFan(event.target.checked);
-                }}
-              />
-            }
-            label={
-              <Typography variant="h5" component="h5">
-                <FilterVintageOutlinedIcon
-                  sx={{ verticalAlign: "middle" }}
-                  color="warning"
-                  fontSize="large"
-                  style={{
-                    animation: `${checkedFan && "spin"} 1s linear infinite`,
-                  }}
-                />
-                Quạt
-                <style>{`
-            @keyframes spin {
-                 0% { transform: rotate(360deg); }
-                 100% { transform: rotate(0deg); }
-            }
-
-            @keyframes neon {
-              from {
-                filter: drop-shadow( 0 0 5px #fff) drop-shadow( 0 0 15px green) drop-shadow( 0 0 20px green);
-              }
-            
-              to {
-                
-                filter: drop-shadow( 0 0 20px #fff) drop-shadow( 0 0 25px green) drop-shadow( 0 0 40px green);
-              }
-            }
-              `}</style>
-              </Typography>
-            }
-          />
-        </Stack> */}
-      {/* </div> */}
     </>
   );
 }

@@ -61,6 +61,9 @@ export const tokens = (mode: PaletteMode) => ({
                 800: "#2a2d64",
                 900: "#151632",
             },
+            myColor: {
+                100: '#EC994B'
+            }
         }
         : {
             grey: {

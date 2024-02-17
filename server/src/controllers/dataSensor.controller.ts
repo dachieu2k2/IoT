@@ -16,7 +16,6 @@ export const getDataSensors = async ({ page, limit, orderBy, sortBy, s }: IParam
         const offset = (page - 1) * limit
 
         let query = 'SELECT * FROM data_sensor'
-        const queryParams: any = []
 
         if (s) {
             query += ` WHERE MATCH(temperature, humidity, light) AGAINST (${s} IN BOOLEAN MODE)`
