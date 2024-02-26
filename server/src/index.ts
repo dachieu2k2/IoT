@@ -1,13 +1,19 @@
 import express from "express";
 import cors from 'cors';
 import { Server } from "socket.io";
+import mqtt from "mqtt";
 
 
 import { getDataSensors, saveDataSensor } from "./controllers/dataSensor.controller";
 import { getActionHistorys, saveActionHistory } from "./controllers/actionHistory.controller";
 
 
+const protocol = 'mqtt'
+const host = 'broker.emqx.io'
+const port = '1883'
+const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
+const connectUrl = `${protocol}://${host}:${port}`
 
 
 
@@ -74,6 +80,7 @@ let timeChange: ReturnType<typeof setInterval>;
 let count = 0;
 
 
+
 io.on("connection", (socket) => {
     if (timeChange) clearInterval(timeChange);
     console.log("connected to socket.io", socket.id);
@@ -99,8 +106,91 @@ io.on("connection", (socket) => {
     }, 1000)
 
 
+
+
+    socket.on("toggleLight", (payload) => {
+        // MQTT client
+        const MQTTClient = mqtt.connect("mqtt://192.168.0.106", {
+            port: 1883,
+            clientId,
+            connectTimeout: 4000,
+            reconnectPeriod: 1000,
+            //     username: 'emqx',
+            //   password: 'public',
+        })
+
+        MQTTClient.on("connect", () => {
+            console.log('run connect?');
+
+            MQTTClient.subscribe("a", (err) => {
+                console.log('run sub?');
+
+                if (!err) {
+                    // Turn light D6
+                    if (payload === true) {
+                        MQTTClient.publish("device/led", "1")
+
+                    } else {
+                        MQTTClient.publish("device/led", "0")
+                    }
+
+                    // MQTTClient.publish("a", "hello mqtt")
+                }
+                MQTTClient.end()
+            })
+        })
+
+    })
+    socket.on("toggleFan", (payload) => {
+        // MQTT client
+        const MQTTClient = mqtt.connect("mqtt://192.168.0.106", {
+            port: 1883,
+            clientId,
+            connectTimeout: 4000,
+            reconnectPeriod: 1000,
+            //     username: 'emqx',
+            //   password: 'public',
+        })
+
+        MQTTClient.on("connect", () => {
+            console.log('run connect?');
+
+            MQTTClient.subscribe("a", (err) => {
+                console.log('run sub?');
+
+                if (!err) {
+                    // Turn light D7
+                    if (payload === true) {
+                        MQTTClient.publish("device/led", "2")
+
+                    } else {
+                        MQTTClient.publish("device/led", "3")
+                    }
+
+                    // MQTTClient.publish("a", "hello mqtt")
+                }
+                MQTTClient.end()
+            })
+        })
+
+
+
+    })
+    // MQTTClient.on("message", (topic, payload) => {
+    //     // message is Buffer
+    //     console.log('Received Message:', topic, payload.toString())
+    //     // MQTTClient.end();
+    // });
+
+
+
+
     socket.on("disconnect", () => {
         console.log("socket disconnect");
     });
 });
+
+
+
+
 

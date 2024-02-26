@@ -28,7 +28,7 @@ function Dashboard() {
     valueTemperature: [0],
   });
 
-  const [checkedLight, setCheckedLight] = useState<boolean>(true);
+  const [checkedLight, setCheckedLight] = useState<boolean>(false);
   const [checkedFan, setCheckedFan] = useState<boolean>(false);
 
   // console.log(checkedLight, checkedFan);
@@ -196,9 +196,10 @@ function Dashboard() {
             <FormControlLabel
               control={
                 <Switch
-                  defaultChecked
+                  value={checkedLight}
                   color="success"
                   onChange={(event) => {
+                    s.emit("toggleLight", event.target.checked);
                     setCheckedLight(event.target.checked);
                   }}
                 />
@@ -234,8 +235,11 @@ function Dashboard() {
             <FormControlLabel
               control={
                 <Switch
+                  value={checkedFan}
                   color="warning"
                   onChange={(event) => {
+                    s.emit("toggleFan", event.target.checked);
+
                     setCheckedFan(event.target.checked);
                   }}
                 />
