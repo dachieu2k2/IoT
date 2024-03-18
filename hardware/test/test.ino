@@ -10,7 +10,7 @@
 #define DHTPIN D5     // Digital pin connected to the DHT sensor 
 
 // Uncomment the type of sensor in use:
-#define DHTTYPE    DHT11     // DHT 11
+#define DHTTYPE DHT11     // DHT 11
 
 DHT_Unified dht(DHTPIN, DHTTYPE);
 
@@ -20,8 +20,11 @@ uint32_t delayMS;
 
 const char* ssid = "TP-Link_212C";    
 const char* password = "hieulinh";    
-const char* mqtt_server = "test.mosquitto.org";
+const char* mqtt_server = "192.168.0.106";
 const char* topic = "a"; //publish topic
+const char* user = "hieu";
+const char* passwd = "a";
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -94,7 +97,7 @@ void reconnect() {
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
     // Attempt to connect
-    if (client.connect(clientId.c_str())) {
+    if (client.connect(clientId.c_str(), user, passwd)) {
       Serial.println("connected");
       // Once connected, publish an announcement...
 //      client.publish("device/temp", "Temperature value");
@@ -129,7 +132,7 @@ void setup() {
   
   Serial.begin(115200);
   setup_wifi();
-  client.setServer(mqtt_server, 1883);
+  client.setServer(mqtt_server, 1889);
   client.setCallback(callback);
 }
 
@@ -169,15 +172,17 @@ void loop() {
     Serial.println(F("%"));
     hum = event.relative_humidity;
   }
+  int qt = analogRead(A0);
+  Serial.println(qt);
     
     
-    msgStr = String(temp) +","+String(hum);
+    msgStr = String(qt) + ","+ String(temp) +","+String(hum);
     byte arrSize = msgStr.length() + 1;
     char msg[arrSize];
     Serial.print("PUBLISH DATA:");
     Serial.println(msgStr);
     msgStr.toCharArray(msg, arrSize);
-    client.publishS(topic, msg);
+    client.publish(topic, msg);
     msgStr = "";
     delay(50);
   }
