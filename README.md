@@ -6,9 +6,9 @@
       <tr>
         <td valign="top">
           <ul>
-            <li><a href="#1. Tổng quan">1. Tổng quan.</a></li>
-            <li><a href="#2. Cách cài đặt dự án">2. Cách cài đặt dự án.</a></li>
-            <li><a href="#3. Tài liệu và tham khảo">3. Tài liệu tham khảo.</a></li>
+            <li><a href="#1-tổng-quan">1. Tổng quan.</a></li>
+            <li><a href="#2-cách-cài-đặt-dự-án">2. Cách cài đặt dự án.</a></li>
+            <li><a href="#3-tài-liệu-và-tham-khảo">3. Tài liệu tham khảo.</a></li>
           </ul>
         </td>
       </tr>
