@@ -178,10 +178,16 @@ export const router = Router()
  *           enum: [ASC, DESC]
  *         description: Sắp thứ tự
  *       - in: query
- *         name: search
+ *         name: s
  *         schema:
  *           type: string
  *         description: Tìm kiếm theo ký tự
+ *       - in: query
+ *         name: searchBy
+ *         schema:
+ *           type: string
+ *           enum: [id, temperature, humidity, light, createAt]
+ *         description: Search theo trường
  *     responses:
  *       200:
  *         description: Danh sách dữ liệu.
@@ -193,7 +199,7 @@ export const router = Router()
 
 router.get('/', async (req, res) => {
   try {
-    const { page = 1, limit = 10, orderBy = 'id', order = 'ASC', s = '' } = req.query
+    const { page = 1, limit = 10, orderBy = 'id', order = 'ASC', s = '', searchBy = '' } = req.query
 
     console.log(page, limit, orderBy, order, s)
 
@@ -202,7 +208,8 @@ router.get('/', async (req, res) => {
       limit: +limit,
       orderBy: orderBy.toString(),
       sortBy: order.toString(),
-      s: s?.toString()
+      s: s?.toString(),
+      searchBy: searchBy?.toString()
     })
 
     return res.json({ success: true, data: data })

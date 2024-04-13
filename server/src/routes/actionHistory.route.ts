@@ -154,7 +154,7 @@ export const router = Router()
  *         name: orderBy
  *         schema:
  *           type: string
- *           enum: [id, temperature, humidity, light, createAt]
+ *           enum: [id, device, act, createAt]
  *         description: Sắp xếp theo trường
  *       - in: query
  *         name: order
@@ -163,10 +163,16 @@ export const router = Router()
  *           enum: [ASC, DESC]
  *         description: Sắp thứ tự
  *       - in: query
- *         name: search
+ *         name: s
  *         schema:
  *           type: string
  *         description: Tìm kiếm theo ký tự
+ *       - in: query
+ *         name: searchBy
+ *         schema:
+ *           type: string
+ *           enum: [id, device, act, createAt]
+ *         description: Search theo trường
  *     responses:
  *       200:
  *         description: Danh sách dữ liệu.
@@ -178,16 +184,17 @@ export const router = Router()
 
 router.get('/', async (req, res) => {
   try {
-    const { page = 1, limit = 10, orderBy = 'id', order = 'ASC', s = '' } = req.query
+    const { page = 1, limit = 10, orderBy = 'id', order = 'ASC', s = '', searchBy = '' } = req.query
 
-    console.log(page, limit, orderBy, order, s)
+    console.log(page, limit, orderBy, order, s, searchBy)
 
     const data = await getActionHistorys({
       page: +page,
       limit: +limit,
       orderBy: orderBy.toString(),
       sortBy: order.toString(),
-      s: s?.toString()
+      s: s?.toString(),
+      searchBy: searchBy?.toString()
     })
     // console.log('data index: ', data);
 

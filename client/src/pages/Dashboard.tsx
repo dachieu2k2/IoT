@@ -10,6 +10,11 @@ import FilterVintageOutlinedIcon from "@mui/icons-material/FilterVintageOutlined
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import { FormControlLabel, Switch, Typography, Grid } from "@mui/material";
 import { AppWidgetSummary, Header } from "../Components";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
+
+const VALUE_MAX_TEMPERATURE = 80;
+const VALUE_MAX_HUMIDITY = 80;
+const VALUE_MAX_LIGHT = 80;
 
 const s = io("http://localhost:4000/");
 
@@ -65,6 +70,35 @@ function Dashboard() {
     };
   }, []);
 
+  useEffect(() => {
+    if (
+      data.valueTemperature[data.valueTemperature.length - 1] >
+      VALUE_MAX_TEMPERATURE
+    ) {
+      enqueueSnackbar("Cảnh báo: Nhiệt độ quá cao", {
+        variant: "error",
+        preventDuplicate: true,
+      });
+    }
+    if (
+      data.valueHumidity[data.valueHumidity.length - 1] > VALUE_MAX_HUMIDITY
+    ) {
+      enqueueSnackbar("Cảnh báo: Độ ẩm quá cao", {
+        variant: "info",
+        preventDuplicate: true,
+      });
+    }
+    if (
+      data.valueTemperature[data.valueTemperature.length - 1] > VALUE_MAX_LIGHT
+    ) {
+      enqueueSnackbar("Cảnh báo: Ánh sáng quá cao", {
+        variant: "warning",
+        preventDuplicate: true,
+      });
+    }
+    return () => closeSnackbar();
+  }, [data.valueTemperature[data.valueTemperature.length - 1]]);
+
   // console.log(data);
   // console.log(data.values.reduce((p, c) => p + c, 0) / data.values.length);
 
@@ -85,7 +119,12 @@ function Dashboard() {
       >
         <Grid xs={4} height={"25vh"} item>
           <AppWidgetSummary
-            gradientColor="linear-gradient(to top, #ff0844 0%, #ffb199 100%)"
+            gradientColor={`linear-gradient(to top,#ff0844 0%, ${
+              data.valueTemperature[data.valueTemperature.length - 1] >
+              VALUE_MAX_TEMPERATURE
+                ? "#ff0000"
+                : "#ffb199"
+            } 100%)`}
             color="error"
             icon={
               <ThermostatOutlinedIcon
@@ -100,7 +139,12 @@ function Dashboard() {
         </Grid>
         <Grid xs={4} height={"25vh"} item>
           <AppWidgetSummary
-            gradientColor="linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)"
+            gradientColor={`linear-gradient(120deg, ${
+              data.valueHumidity[data.valueHumidity.length - 1] >
+              VALUE_MAX_HUMIDITY
+                ? "#0061ff"
+                : "#a1c4fd"
+            } 0%, #c2e9fb 100%)`}
             color="secondary"
             icon={
               <WaterDropOutlinedIcon
@@ -115,7 +159,12 @@ function Dashboard() {
         </Grid>
         <Grid xs={4} height={"25vh"} item>
           <AppWidgetSummary
-            gradientColor="linear-gradient(-225deg, #FFE29F 0%, #FFA99F 48%, #FF719A 100%)"
+            gradientColor={`linear-gradient(-225deg, ${
+              data.valueHumidity[data.valueHumidity.length - 1] >
+              VALUE_MAX_LIGHT
+                ? "#fff"
+                : "#FFE29F"
+            } 0%, #FFA99F 48%, #FF719A 100%)`}
             color="warning"
             icon={
               <LightModeOutlinedIcon
@@ -191,11 +240,13 @@ function Dashboard() {
             spacing={10}
             justifyContent="center"
             alignItems={"center"}
-            marginTop={15}
+            marginTop={10}
           >
             <FormControlLabel
+              sx={{ fontSize: "2rem" }}
               control={
                 <Switch
+                  size="medium"
                   value={checkedLight}
                   color="success"
                   onChange={(event) => {
@@ -205,12 +256,12 @@ function Dashboard() {
                 />
               }
               label={
-                <Typography variant="h5" component="h5">
+                <Typography variant="h5" component="h5" fontSize={"inherit"}>
                   {checkedLight ? (
                     <LightbulbIcon
                       sx={{ verticalAlign: "middle" }}
                       color="success"
-                      fontSize="large"
+                      fontSize="inherit"
                       style={{
                         transition: ` all 1s ease-in-out`,
                         animation: `${
@@ -222,7 +273,7 @@ function Dashboard() {
                     <LightbulbOutlinedIcon
                       sx={{ verticalAlign: "middle" }}
                       color="success"
-                      fontSize="large"
+                      fontSize="inherit"
                       style={{
                         transition: ` all 1s ease-in-out`,
                       }}
@@ -233,8 +284,10 @@ function Dashboard() {
               }
             />
             <FormControlLabel
+              sx={{ fontSize: "2rem" }}
               control={
                 <Switch
+                  size="medium"
                   value={checkedFan}
                   color="warning"
                   onChange={(event) => {
@@ -245,11 +298,11 @@ function Dashboard() {
                 />
               }
               label={
-                <Typography variant="h5" component="h5">
+                <Typography variant="h5" component="h5" fontSize={"inherit"}>
                   <FilterVintageOutlinedIcon
                     sx={{ verticalAlign: "middle" }}
                     color="warning"
-                    fontSize="large"
+                    fontSize="inherit"
                     style={{
                       animation: `${checkedFan && "spin"} 1s linear infinite`,
                     }}
