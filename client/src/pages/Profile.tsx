@@ -5,18 +5,27 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import XIcon from "@mui/icons-material/X";
 
-import { tokens } from "../common/theme";
+// import { tokens } from "../common/theme";
 
 const Profile = () => {
   const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
+  // const colors = tokens(theme.palette.mode);
   return (
     <>
       <Helmet>
         <title> PĐH - Profile </title>
       </Helmet>
-      <Box display="flex" alignItems={"center"} height={"100vh"} py={2}>
+
+      <Box
+        component={"div"}
+        display="flex"
+        alignItems={"center"}
+        height={"100vh"}
+        py={2}
+        position={"relative"}
+      >
         <Box
+          component={"div"}
           display={"flex"}
           flex={0.5}
           flexDirection={"column"}
@@ -41,7 +50,7 @@ const Profile = () => {
             </span>
             .
           </Typography>
-          <Box my={2}>
+          <Box component={"div"} my={2}>
             <IconButton color="warning" aria-label="add an alarm">
               <FacebookOutlinedIcon fontSize="large" />
             </IconButton>
@@ -55,13 +64,14 @@ const Profile = () => {
               <XIcon fontSize="large" />
             </IconButton>
           </Box>
-          <Box mt={3}>
+          <Box component={"div"} mt={3}>
             <Button variant="contained" color="warning" size="large">
               Contact me
             </Button>
           </Box>
         </Box>
         <Box
+          component={"div"}
           display={"flex"}
           flex={0.5}
           position={"relative"}
@@ -72,6 +82,7 @@ const Profile = () => {
             .
           </Avatar> */}
           <Box
+            component={"div"}
             sx={{
               backgroundColor: "#EC994B",
               // backgroundImage:
@@ -89,6 +100,7 @@ const Profile = () => {
             }}
           ></Box>
           <Box
+            component={"div"}
             sx={{
               backgroundColor: "#f6d365",
               opacity: 0.7,
@@ -105,7 +117,7 @@ const Profile = () => {
               left: "calc(50% - 200px)",
             }}
           ></Box>
-          <Box zIndex={2}>
+          <Box component={"div"} zIndex={2}>
             <img
               src="./IMG_8576 1.png"
               loading="lazy"

@@ -5,6 +5,8 @@ import { Server } from 'socket.io'
 import { actionHistoryRouter, apiDocsRouter, dataSensorRouter } from './routes'
 import { addTimestamp, errorHandler, logger } from './middlewares'
 import { MQTTClient } from './utils/mqtt'
+import { saveActionHistory } from './controllers/actionHistory.controller'
+import { saveDataSensor } from './controllers/dataSensor.controller'
 
 const app = express()
 
@@ -38,11 +40,53 @@ const io = new Server(server, {
 let timeChange: ReturnType<typeof setInterval>
 let count = 0
 
+MQTTClient.on('connect', () => {
+  MQTTClient.subscribe(['dataSensor', 'device/led/message', 'device/fan/message', 'device/led', 'device/fan'])
+})
+
+MQTTClient.on('message', (topic, payload) => {
+  // message is Buffer
+  console.log('Received Message:', topic, payload.toString())
+
+  if (topic === 'dataSensor') {
+    count += 1
+    const dataFromMqtt = JSON.parse(payload.toString())
+    const newData = {
+      valueTemperature: dataFromMqtt.temperature,
+      valueHumidity: dataFromMqtt.humidity,
+      valueLight: dataFromMqtt.light,
+      label: count
+    }
+    saveDataSensor({
+      humidity: newData.valueHumidity.toString(),
+      temperature: newData.valueTemperature.toString(),
+      light: newData.valueLight.toString()
+    })
+
+    // console.log(newData)
+    // io.emit('dataUpdate', newData)
+    io.emit('dataUpdate', newData)
+  }
+
+  if (topic === 'device/led/message') {
+    const dataFromMqtt = JSON.parse(payload.toString())
+    console.log(dataFromMqtt)
+    saveActionHistory({ act: dataFromMqtt.status === 'true' ? 'On' : 'Off', device: 'Light' })
+    io.emit('device/led/message', dataFromMqtt)
+  }
+  if (topic === 'device/fan/message') {
+    const dataFromMqtt = JSON.parse(payload.toString())
+    console.log(dataFromMqtt)
+    saveActionHistory({ act: dataFromMqtt.status === 'true' ? 'On' : 'Off', device: 'Fan' })
+    io.emit('device/fan/message', dataFromMqtt)
+  }
+})
+
 io.on('connection', (socket) => {
   if (timeChange) clearInterval(timeChange)
   console.log('connected to socket.io', socket.id)
   timeChange = setInterval(() => {
-    count += 1
+    // count += 1
     const newData = {
       label: count,
       valueTemperature: Math.floor(Math.random() * 100),
@@ -59,58 +103,39 @@ io.on('connection', (socket) => {
     //     device: Math.floor(Math.random() * 100) > 50 ? 'Light' : 'Fan',
     //     act: Math.floor(Math.random() * 100) > 50 ? 'Off' : 'On',
     // })
-    io.emit('dataUpdate', newData)
+    // io.emit('dataUpdate', newData)
   }, 1000)
 
   socket.on('toggleLight', (payload) => {
+    console.log('run socket')
+
     // MQTT client
 
-    MQTTClient.on('connect', () => {
-      console.log('run connect?')
-
-      MQTTClient.subscribe('a', (err) => {
-        console.log('run sub?')
-
-        if (!err) {
-          // Turn light D6
-          if (payload === true) {
-            MQTTClient.publish('device/led', '1')
-          } else {
-            MQTTClient.publish('device/led', '0')
-          }
-
-          // MQTTClient.publish("a", "hello mqtt")
+    MQTTClient.subscribe('device/led', (err) => {
+      console.log('run sub?')
+      if (!err) {
+        if (payload === true) {
+          MQTTClient.publish('device/led', '1')
+        } else {
+          MQTTClient.publish('device/led', '0')
         }
-        MQTTClient.end()
-      })
+      }
     })
   })
   socket.on('toggleFan', (payload) => {
-    MQTTClient.on('connect', () => {
-      console.log('run connect?')
+    console.log('run socket', payload)
 
-      MQTTClient.subscribe('a', (err) => {
-        console.log('run sub?')
-
-        if (!err) {
-          // Turn light D7
-          if (payload === true) {
-            MQTTClient.publish('device/led', '2')
-          } else {
-            MQTTClient.publish('device/led', '3')
-          }
-
-          // MQTTClient.publish("a", "hello mqtt")
+    MQTTClient.subscribe('device/fan', (err) => {
+      console.log('run sub?')
+      if (!err) {
+        if (payload === true) {
+          MQTTClient.publish('device/fan', '1')
+        } else {
+          MQTTClient.publish('device/fan', '0')
         }
-        MQTTClient.end()
-      })
+      }
     })
   })
-  // MQTTClient.on("message", (topic, payload) => {
-  //     // message is Buffer
-  //     console.log('Received Message:', topic, payload.toString())
-  //     // MQTTClient.end();
-  // });
 
   socket.on('disconnect', () => {
     console.log('socket disconnect')

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import io from "socket.io-client";
 import { LineChart } from "@mui/x-charts";
 import { Stack } from "@mui/system";
@@ -8,9 +8,16 @@ import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import FilterVintageOutlinedIcon from "@mui/icons-material/FilterVintageOutlined";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
-import { FormControlLabel, Switch, Typography, Grid } from "@mui/material";
+import {
+  FormControlLabel,
+  Switch,
+  Typography,
+  Grid,
+  CircularProgress,
+} from "@mui/material";
 import { AppWidgetSummary, Header } from "../Components";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { useDashboardStore } from "../stores/DashboardStore";
 
 const VALUE_MAX_TEMPERATURE = 80;
 const VALUE_MAX_HUMIDITY = 80;
@@ -18,55 +25,86 @@ const VALUE_MAX_LIGHT = 80;
 
 const s = io("http://localhost:4000/");
 
-interface DataFromServer {
-  labels: number[];
-  valueTemperature: number[];
-  valueHumidity: number[];
-  valueLight: number[];
-}
-
 function Dashboard() {
-  const [data, setData] = useState<DataFromServer>({
-    labels: [0],
-    valueHumidity: [0],
-    valueLight: [0],
-    valueTemperature: [0],
-  });
+  // const [data, setData] = useState<DataFromServer>({
 
-  const [checkedLight, setCheckedLight] = useState<boolean>(false);
-  const [checkedFan, setCheckedFan] = useState<boolean>(false);
+  // });
+
+  const data = useDashboardStore((state) => state.data);
+  const updateData = useDashboardStore((state) => state.updateData);
+
+  const checkedLight = useDashboardStore((state) => state.checkedLight);
+  const setCheckedLight = useDashboardStore((state) => state.setCheckedLight);
+
+  const checkedFan = useDashboardStore((state) => state.checkedFan);
+  const setCheckedFan = useDashboardStore((state) => state.setCheckedFan);
+
+  // const [checkedLight, setCheckedLight] = useState<boolean>(false);
+  // const [checkedFan, setCheckedFan] = useState<boolean>(false);
+
+  const [loadingLight, setLoadingLight] = useState<boolean>(false);
+  const [loadingFan, setLoadingFan] = useState<boolean>(false);
 
   // console.log(checkedLight, checkedFan);
 
   useEffect(() => {
     s.on("dataUpdate", (newData: any) => {
-      setData((prev) => {
-        const checkData = {
-          labels: [...prev.labels, newData.label],
-          valueTemperature: [
-            ...prev.valueTemperature,
-            newData.valueTemperature,
-          ],
-          valueHumidity: [...prev.valueHumidity, newData.valueHumidity],
-          valueLight: [...prev.valueLight, newData.valueLight],
-        };
-        const updatedData = checkData;
-        // console.log(updatedData);
+      // console.log(newData, data);
 
-        if (checkData.labels.length > 12) {
-          updatedData.labels.shift();
-          updatedData.valueTemperature.shift();
-          updatedData.valueHumidity.shift();
-          updatedData.valueLight.shift();
-        }
-        // console.log(updatedData);
-
-        return updatedData;
-      });
+      updateData(newData);
     });
     return () => {
       // Cleanup on component unmount
       s.off("dataUpdate");
+    };
+  }, []);
+
+  useEffect(() => {
+    s.on("device/led/message", (newData: any) => {
+      // updateData(newData);
+      setCheckedLight(newData.status === "true");
+      setLoadingLight(false);
+      enqueueSnackbar(
+        `Thông báo: Đèn đã được ${newData.status === "true" ? "Bật" : "Tắt"}`,
+        {
+          variant: newData.status === "true" ? "success" : "warning",
+          preventDuplicate: true,
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "right",
+          },
+        }
+      );
+    });
+    return () => {
+      // Cleanup on component unmount
+      s.off("device/led/message");
+      closeSnackbar();
+    };
+  }, []);
+
+  useEffect(() => {
+    s.on("device/fan/message", (newData: any) => {
+      setCheckedFan(newData.status === "true");
+      setLoadingFan(false);
+      enqueueSnackbar(
+        `Thông báo: Quạt đã được ${newData.status === "true" ? "Bật" : "Tắt"}`,
+        {
+          variant: newData.status === "true" ? "success" : "warning",
+          preventDuplicate: true,
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "right",
+          },
+        }
+      );
+
+      // updateData(newData);
+    });
+    return () => {
+      // Cleanup on component unmount
+      s.off("device/fan/message");
+      closeSnackbar();
     };
   }, []);
 
@@ -245,15 +283,21 @@ function Dashboard() {
             <FormControlLabel
               sx={{ fontSize: "2rem" }}
               control={
-                <Switch
-                  size="medium"
-                  value={checkedLight}
-                  color="success"
-                  onChange={(event) => {
-                    s.emit("toggleLight", event.target.checked);
-                    setCheckedLight(event.target.checked);
-                  }}
-                />
+                loadingLight ? (
+                  <CircularProgress color="success" />
+                ) : (
+                  <Switch
+                    size="medium"
+                    checked={checkedLight}
+                    value={checkedLight}
+                    color="success"
+                    onChange={() => {
+                      setLoadingLight(true);
+                      s.emit("toggleLight", !checkedLight);
+                      // setCheckedLight(event.target.checked);
+                    }}
+                  />
+                )
               }
               label={
                 <Typography variant="h5" component="h5" fontSize={"inherit"}>
@@ -286,16 +330,22 @@ function Dashboard() {
             <FormControlLabel
               sx={{ fontSize: "2rem" }}
               control={
-                <Switch
-                  size="medium"
-                  value={checkedFan}
-                  color="warning"
-                  onChange={(event) => {
-                    s.emit("toggleFan", event.target.checked);
+                loadingFan ? (
+                  <CircularProgress color="warning" />
+                ) : (
+                  <Switch
+                    size="medium"
+                    value={checkedFan}
+                    checked={checkedFan}
+                    color="warning"
+                    onChange={() => {
+                      setLoadingFan(true);
+                      s.emit("toggleFan", !checkedFan);
 
-                    setCheckedFan(event.target.checked);
-                  }}
-                />
+                      // setCheckedFan(event.target.checked);
+                    }}
+                  />
+                )
               }
               label={
                 <Typography variant="h5" component="h5" fontSize={"inherit"}>

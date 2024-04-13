@@ -36,7 +36,6 @@ export const getDataSensors = async ({ page, limit, orderBy, sortBy, s, searchBy
 
     if (limit && page) {
       query += ` LIMIT ${+limit} OFFSET ${+offset}`
-      queryPage += ` LIMIT ${+limit} OFFSET ${+offset}`
     }
 
     console.log(query)

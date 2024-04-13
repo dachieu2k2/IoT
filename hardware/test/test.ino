@@ -18,10 +18,10 @@ uint32_t delayMS;
 
 // Update these with values suitable for your network.
 
-const char* ssid = "TP-Link_212C";    
-const char* password = "hieulinh";    
-const char* mqtt_server = "192.168.0.106";
-const char* topic = "a"; //publish topic
+const char* ssid = "Hieu Pham";    
+const char* password = "hieupham";    
+const char* mqtt_server = "172.20.10.2";
+const char* topic = "dataSensor"; //publish topic
 const char* user = "hieu";
 const char* passwd = "a";
 
@@ -73,18 +73,26 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
   // Switch on the LED if an 1 was received as first character
 
-  if ((char)payload[0] == '0') {
+  if ((char)payload[0] == '0' && strcmp(topic, "device/led") == 0 ) {
     digitalWrite(D6, LOW);   // Turn the LED on (Note that LOW is the voltage level
     // but actually the LED is on; this is because
     // it is active low on the ESP-01)
-  } else if ((char)payload[0] == '1') {
+    const char* alterMsg = "{\"status\":\"false\",\"message\":\"Light turns off!!!\"}";
+    client.publish("device/led/message", alterMsg);
+  } else if ((char)payload[0] == '1' && strcmp(topic, "device/led") == 0) {
     digitalWrite(D6, HIGH);  // Turn the LED off by making the voltage HIGH
+    const char* alterMsg = "{\"status\":\"true\",\"message\":\"Light turns on!!!\"}";
+    client.publish("device/led/message", alterMsg);
   }
-  else if ((char)payload[0] == '2') {
-    digitalWrite(D7, HIGH);  // Turn the LED off by making the voltage HIGH
-  }
-  else if ((char)payload[0] == '3') {
+  else if ((char)payload[0] == '0' && strcmp(topic, "device/fan") == 0) {
     digitalWrite(D7, LOW);  // Turn the LED off by making the voltage HIGH
+    const char* alterMsg = "{\"status\":\"false\",\"message\":\"Fan turns off!!!\"}";
+    client.publish("device/fan/message", alterMsg);
+  }
+  else if ((char)payload[0] == '1' && strcmp(topic, "device/fan") == 0) {
+    digitalWrite(D7, HIGH);  // Turn the LED off by making the voltage HIGH
+    const char* alterMsg = "{\"status\":\"true\",\"message\":\"Fan turns on!!!\"}";
+    client.publish("device/fan/message", alterMsg);
   }
   
 }
@@ -105,6 +113,7 @@ void reconnect() {
       
       // ... and resubscribe
       client.subscribe("device/led");
+      client.subscribe("device/fan");
 //      client.subscribe("device/led1");
 //      client.subscribe("device/led2");
     } else {
@@ -176,7 +185,9 @@ void loop() {
   Serial.println(qt);
     
     
-    msgStr = String(qt) + ","+ String(temp) +","+String(hum);
+    // msgStr = String(qt) + "," + String(temp) +"," + String(hum);
+    msgStr = "{\"light\":" + String(qt) + ",\"temperature\":" + String(temp) + ",\"humidity\":" + String(hum) + "}";
+
     byte arrSize = msgStr.length() + 1;
     char msg[arrSize];
     Serial.print("PUBLISH DATA:");
@@ -184,6 +195,6 @@ void loop() {
     msgStr.toCharArray(msg, arrSize);
     client.publish(topic, msg);
     msgStr = "";
-    delay(50);
+    delay(3000);
   }
 }

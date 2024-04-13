@@ -87,9 +87,11 @@ const ActionHistory = () => {
     limit: 10,
     order: OrderEnum.ASC,
     orderBy: OrderByEnum.CREATE_AT,
-
+    searchBy: "",
     s: "",
   });
+  const [searchUI, setSearchUI] = useState<string>(" ");
+  const [searchInput, setSearchInput] = useState<string>("");
 
   const { data, isLoading, isFetching } = useQueryActionHistory(params);
 
@@ -110,6 +112,19 @@ const ActionHistory = () => {
           <InputBase
             sx={{ flex: 1, backgroundColor: colors.primary[400], px: 2 }}
             placeholder="Search"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setParams((prevState) => {
+                  return {
+                    ...prevState,
+                    s: searchInput,
+                    searchBy: searchUI === " " ? "" : searchUI,
+                  };
+                });
+              }
+            }}
           />
         </Box>
         <FormControl sx={{ width: 200, px: 1 }}>
@@ -117,9 +132,11 @@ const ActionHistory = () => {
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={" "}
+            value={searchUI}
             label="Age"
-            onChange={() => {}}
+            onChange={(e) => {
+              setSearchUI(e.target.value);
+            }}
             sx={{ flex: 1, backgroundColor: colors.primary[400] }}
           >
             <MenuItem value={" "}>Tất cả</MenuItem>
@@ -133,7 +150,19 @@ const ActionHistory = () => {
             <MenuItem value={30}>Thời gian</MenuItem> */}
           </Select>
         </FormControl>
-        <IconButton type="button" sx={{ p: 2 }}>
+        <IconButton
+          type="button"
+          sx={{ p: 2 }}
+          onClick={() =>
+            setParams((prevState) => {
+              return {
+                ...prevState,
+                s: searchInput,
+                searchBy: searchUI === " " ? "" : searchUI,
+              };
+            })
+          }
+        >
           <SearchIcon />
         </IconButton>
       </Box>

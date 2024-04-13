@@ -32,7 +32,6 @@ export const getActionHistorys = async ({ page, limit, orderBy, sortBy, s, searc
 
     if (limit && page) {
       query += ` LIMIT ${+limit} OFFSET ${+offset}`
-      queryPage += ` LIMIT ${+limit} OFFSET ${+offset}`
     }
 
     console.log(query)
