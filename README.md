@@ -62,15 +62,37 @@ chạy file dev_run.bat
 
 > Yêu cầu: Tất cả phải có thiết bị hardware `ESP8266`, `dht11`, `2 LED`, `quang trở`, ` dây nạp code USB mini, type A-micro`, `một số dây để nối vào nguồn`
 
-- Tất cả source code của hardware đều được ở trong folder `hardware`
+- Tất cả mã nguồn của hardware đều ở [./hardware/test/test.ino](./hardware/test/test.ino)
 
 ### Dự án sau khi chạy
 
-Truy cập vào API `http://localhost:4000/dev/document/#/` để xem document của Server
+#### Server
+
+Truy cập vào địa chỉ: [http://localhost:4000/dev/document/#/](http://localhost:4000/dev/document/#/) để xem API document của Server
 
 ![Document_API](DocumentAPI.PNG)
 
+#### Client
+
+Trang dashboard: [http://localhost:5000/](http://localhost:5000/)
+
+![Dashboard](./dashboard.jpg)
+
+Trang dữ liệu cảm biến: [http://localhost:5000/datasensor](http://localhost:5000/datasensor)
+
+![Datasensor](./datasensor.jpg)
+
+Trang lịch sử bật tắt đèn: [http://localhost:5000/action_history](http://localhost:5000/action_history)
+
+![actionHistory](./actionHistory.jpg)
+
+Trang profile: [http://localhost:5000/profile](http://localhost:5000/profile)
+
+![Profile](./profile.jpg)
+
 ## 3. Tài liệu và tham khảo
+
+### Tài liệu tham khảo
 
 - Cài node js tại: [Nodejs](https://nodejs.org/en).
 - Cài đặt arduino tại: [Arduino](https://www.arduino.cc/en/software)
@@ -78,4 +100,8 @@ Truy cập vào API `http://localhost:4000/dev/document/#/` để xem document c
 - Kiến thức về hardware: [From Zero to Smart Home Hero: Automate Your Life with NodeMCU and MQTT](https://youtu.be/qdxKUQEgDNE?si=jq4B2je0GqNbf6Yp)
 - Cách MQTT broker: [Cài đặt Local MQTT Broker trên Windows #1](https://www.youtube.com/watch?v=xLLFrLhegcw)
 - Bảo mật MQTT brokder với username, password: [Setting up User name and password for Mosquitto Mqtt Broker](https://www.youtube.com/watch?v=fknowuQJ9MA).
--
+
+### Lời cảm ơn
+
+- Photos: [Vũ Ngọc Khánh](https://www.facebook.com/vngckhahn)
+- Dev & Des: [Phạm Đắc Hiếu](https://www.facebook.com/hieu.hiihihaha/)
