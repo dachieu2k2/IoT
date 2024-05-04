@@ -63,5 +63,6 @@ CREATE TABLE `data_sensor` (
 ALTER TABLE `data_sensor`
 ADD `dust` varchar(255) DEFAULT(0);
 
-
+ALTER TABLE `data_sensor` 
+ALTER `dust` DROP DEFAULT;
 
