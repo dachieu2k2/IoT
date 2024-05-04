@@ -94,6 +94,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
     const char* alterMsg = "{\"status\":\"true\",\"message\":\"Fan turns on!!!\"}";
     client.publish("device/fan/message", alterMsg);
   }
+  else if ((char)payload[0] == '0' && strcmp(topic, "device/led2") == 0) {
+    digitalWrite(D1, LOW);  // Turn the LED off by making the voltage HIGH
+    const char* alterMsg = "{\"status\":\"false\",\"message\":\"Led 2 turns off!!!\"}";
+    client.publish("device/led2/message", alterMsg);
+  }
+  else if ((char)payload[0] == '1' && strcmp(topic, "device/led2") == 0) {
+    digitalWrite(D1, HIGH);  // Turn the LED off by making the voltage HIGH
+    const char* alterMsg = "{\"status\":\"true\",\"message\":\"Led 2 turns on!!!\"}";
+    client.publish("device/led2/message", alterMsg);
+  }
   
 }
 
@@ -114,6 +124,7 @@ void reconnect() {
       // ... and resubscribe
       client.subscribe("device/led");
       client.subscribe("device/fan");
+      client.subscribe("device/led2");
 //      client.subscribe("device/led1");
 //      client.subscribe("device/led2");
     } else {
@@ -130,6 +141,7 @@ void setup() {
 //  pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   pinMode(D6, OUTPUT);
   pinMode(D7, OUTPUT);
+  pinMode(D1, OUTPUT);
   
   dht.begin();
   sensor_t sensor;
@@ -186,7 +198,7 @@ void loop() {
     
     
     // msgStr = String(qt) + "," + String(temp) +"," + String(hum);
-    msgStr = "{\"light\":" + String(qt) + ",\"temperature\":" + String(temp) + ",\"humidity\":" + String(hum) + "}";
+    msgStr = "{\"light\":" + String(qt) + ",\"temperature\":" + String(temp) + ",\"humidity\":" + String(hum) + ",\"dust\":" + String(rand() % 100 + 1) + "}";
 
     byte arrSize = msgStr.length() + 1;
     char msg[arrSize];

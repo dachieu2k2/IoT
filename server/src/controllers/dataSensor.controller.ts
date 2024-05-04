@@ -3,10 +3,11 @@ import { pool } from '~/db/connectDB'
 import { IParams } from '~/common'
 
 export const saveDataSensor = async (dataSensor: DataSensors) => {
-  await pool.query('INSERT INTO data_sensor (temperature, humidity, light) VALUES(?,?,?)', [
+  await pool.query('INSERT INTO data_sensor (temperature, humidity, light, dust) VALUES(?,?,?,?)', [
     dataSensor.temperature,
     dataSensor.humidity,
-    dataSensor.light
+    dataSensor.light,
+    dataSensor.dust
   ])
 }
 

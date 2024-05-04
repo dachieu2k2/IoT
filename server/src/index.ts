@@ -41,7 +41,15 @@ let timeChange: ReturnType<typeof setInterval>
 let count = 0
 
 MQTTClient.on('connect', () => {
-  MQTTClient.subscribe(['dataSensor', 'device/led/message', 'device/fan/message', 'device/led', 'device/fan'])
+  MQTTClient.subscribe([
+    'dataSensor',
+    'device/led/message',
+    'device/fan/message',
+    'device/led2/message',
+    'device/led',
+    'device/led2',
+    'device/fan'
+  ])
 })
 
 let test = 0
@@ -57,13 +65,15 @@ MQTTClient.on('message', (topic, payload) => {
       valueTemperature: dataFromMqtt.temperature,
       valueHumidity: dataFromMqtt.humidity,
       valueLight: dataFromMqtt.light,
+      valueDust: dataFromMqtt.dust,
       label: count
     }
     if (newData.valueHumidity)
       saveDataSensor({
         humidity: newData.valueHumidity.toString(),
         temperature: newData.valueTemperature.toString(),
-        light: newData.valueLight.toString()
+        light: newData.valueLight.toString(),
+        dust: newData.valueDust.toString()
       })
 
     io.emit('dataUpdate', newData)
@@ -87,6 +97,14 @@ MQTTClient.on('message', (topic, payload) => {
     if (dataFromMqtt) {
       saveActionHistory({ act: dataFromMqtt.status === 'true' ? 'On' : 'Off', device: 'Fan' })
       io.emit('device/fan/message', dataFromMqtt)
+    }
+  }
+  if (topic === 'device/led2/message') {
+    const dataFromMqtt = JSON.parse(payload.toString())
+    console.log(dataFromMqtt)
+    if (dataFromMqtt) {
+      saveActionHistory({ act: dataFromMqtt.status === 'true' ? 'On' : 'Off', device: 'Light2' })
+      io.emit('device/led2/message', dataFromMqtt)
     }
   }
 })
@@ -141,6 +159,22 @@ io.on('connection', (socket) => {
           MQTTClient.publish('device/fan', '1')
         } else {
           MQTTClient.publish('device/fan', '0')
+        }
+      }
+    })
+  })
+  socket.on('toggleLight2', (payload) => {
+    console.log('run socket')
+
+    // MQTT client
+
+    MQTTClient.subscribe('device/led2', (err) => {
+      console.log('run sub?')
+      if (!err) {
+        if (payload === true) {
+          MQTTClient.publish('device/led2', '1')
+        } else {
+          MQTTClient.publish('device/led2', '0')
         }
       }
     })

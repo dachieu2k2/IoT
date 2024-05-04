@@ -7,6 +7,8 @@ import WaterDropOutlinedIcon from "@mui/icons-material/WaterDropOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import FilterVintageOutlinedIcon from "@mui/icons-material/FilterVintageOutlined";
+import AirOutlinedIcon from "@mui/icons-material/AirOutlined";
+
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import {
   FormControlLabel,
@@ -22,6 +24,7 @@ import { useDashboardStore } from "../stores/DashboardStore";
 const VALUE_MAX_TEMPERATURE = 80;
 const VALUE_MAX_HUMIDITY = 80;
 const VALUE_MAX_LIGHT = 80;
+const VALUE_MAX_DUST = 80;
 
 const s = io("http://localhost:4000/");
 
@@ -36,6 +39,9 @@ function Dashboard() {
   const checkedLight = useDashboardStore((state) => state.checkedLight);
   const setCheckedLight = useDashboardStore((state) => state.setCheckedLight);
 
+  const checkedLight2 = useDashboardStore((state) => state.checkedLight2);
+  const setCheckedLight2 = useDashboardStore((state) => state.setCheckedLight2);
+
   const checkedFan = useDashboardStore((state) => state.checkedFan);
   const setCheckedFan = useDashboardStore((state) => state.setCheckedFan);
 
@@ -43,6 +49,7 @@ function Dashboard() {
   // const [checkedFan, setCheckedFan] = useState<boolean>(false);
 
   const [loadingLight, setLoadingLight] = useState<boolean>(false);
+  const [loadingLight2, setLoadingLight2] = useState<boolean>(false);
   const [loadingFan, setLoadingFan] = useState<boolean>(false);
 
   // console.log(checkedLight, checkedFan);
@@ -79,6 +86,30 @@ function Dashboard() {
     return () => {
       // Cleanup on component unmount
       s.off("device/led/message");
+      closeSnackbar();
+    };
+  }, []);
+
+  useEffect(() => {
+    s.on("device/led2/message", (newData: any) => {
+      // updateData(newData);
+      setCheckedLight2(newData.status === "true");
+      setLoadingLight2(false);
+      enqueueSnackbar(
+        `Thông báo: Đèn đã được ${newData.status === "true" ? "Bật" : "Tắt"}`,
+        {
+          variant: newData.status === "true" ? "success" : "warning",
+          preventDuplicate: true,
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "right",
+          },
+        }
+      );
+    });
+    return () => {
+      // Cleanup on component unmount
+      s.off("device/led2/message");
       closeSnackbar();
     };
   }, []);
@@ -126,16 +157,21 @@ function Dashboard() {
         preventDuplicate: true,
       });
     }
-    if (
-      data.valueTemperature[data.valueTemperature.length - 1] > VALUE_MAX_LIGHT
-    ) {
+    if (data.valueLight[data.valueLight.length - 1] > VALUE_MAX_LIGHT) {
       enqueueSnackbar("Cảnh báo: Ánh sáng quá cao", {
         variant: "warning",
         preventDuplicate: true,
       });
     }
+
+    if (data.valueDust[data.valueDust.length - 1] > VALUE_MAX_DUST) {
+      enqueueSnackbar("Cảnh báo: Độ bụi quá cao", {
+        variant: "default",
+        preventDuplicate: true,
+      });
+    }
     return () => closeSnackbar();
-  }, [data.valueTemperature[data.valueTemperature.length - 1]]);
+  }, [data.valueDust[data.valueDust.length - 1]]);
 
   // console.log(data);
   // console.log(data.values.reduce((p, c) => p + c, 0) / data.values.length);
@@ -155,7 +191,7 @@ function Dashboard() {
         alignItems="center"
         style={{ minHeight: "25vh" }}
       >
-        <Grid xs={4} height={"25vh"} item>
+        <Grid xs={3} height={"25vh"} item>
           <AppWidgetSummary
             gradientColor={`linear-gradient(to top,#ff0844 0%, ${
               data.valueTemperature[data.valueTemperature.length - 1] >
@@ -175,7 +211,7 @@ function Dashboard() {
             total={data.valueTemperature[data.valueTemperature.length - 1]}
           />
         </Grid>
-        <Grid xs={4} height={"25vh"} item>
+        <Grid xs={3} height={"25vh"} item>
           <AppWidgetSummary
             gradientColor={`linear-gradient(120deg, ${
               data.valueHumidity[data.valueHumidity.length - 1] >
@@ -195,11 +231,10 @@ function Dashboard() {
             total={data.valueHumidity[data.valueHumidity.length - 1]}
           />
         </Grid>
-        <Grid xs={4} height={"25vh"} item>
+        <Grid xs={3} height={"25vh"} item>
           <AppWidgetSummary
             gradientColor={`linear-gradient(-225deg, ${
-              data.valueHumidity[data.valueHumidity.length - 1] >
-              VALUE_MAX_LIGHT
+              data.valueLight[data.valueLight.length - 1] > VALUE_MAX_LIGHT
                 ? "#fff"
                 : "#FFE29F"
             } 0%, #FFA99F 48%, #FF719A 100%)`}
@@ -213,6 +248,25 @@ function Dashboard() {
             }
             title={"Ánh sáng (lx)"}
             total={data.valueLight[data.valueLight.length - 1]}
+          />
+        </Grid>
+        <Grid xs={3} height={"25vh"} item>
+          <AppWidgetSummary
+            gradientColor={`linear-gradient(110.3deg, ${
+              data.valueDust[data.valueDust.length - 1] > VALUE_MAX_DUST
+                ? "rgb(70 34 0)"
+                : "rgba(238,179,123,1)"
+            } 8.7%, rgba(216,103,77,1) 47.5%, rgba(114,43,54,1) 89.1%)`}
+            color="warning"
+            icon={
+              <AirOutlinedIcon
+                sx={{ verticalAlign: "middle" }}
+                fontSize={"large"}
+                color={"inherit"}
+              />
+            }
+            title={"Độ bụi (%)"}
+            total={data.valueDust[data.valueDust.length - 1]}
           />
         </Grid>
         <Grid item xs={8} maxHeight={"100%"} maxWidth={"100%"} height={"60vh"}>
@@ -266,6 +320,14 @@ function Dashboard() {
                 curve: "catmullRom",
                 label: "Ánh sáng",
               },
+              {
+                color: "#722b36",
+                yAxisKey: "Nhiet do",
+                data: data.valueDust,
+                // area: true,
+                curve: "catmullRom",
+                label: "Độ bụi",
+              },
             ]}
             rightAxis="Anh sang"
             //   width={600}
@@ -275,10 +337,10 @@ function Dashboard() {
         <Grid item xs={4}>
           <Stack
             // direction={"row"}
-            spacing={10}
+            spacing={5}
             justifyContent="center"
             alignItems={"center"}
-            marginTop={10}
+            marginTop={5}
           >
             <FormControlLabel
               sx={{ fontSize: "2rem" }}
@@ -358,6 +420,52 @@ function Dashboard() {
                     }}
                   />
                   Quạt
+                </Typography>
+              }
+            />
+            <FormControlLabel
+              sx={{ fontSize: "2rem" }}
+              control={
+                loadingLight2 ? (
+                  <CircularProgress color="secondary" />
+                ) : (
+                  <Switch
+                    size="medium"
+                    checked={checkedLight2}
+                    value={checkedLight2}
+                    color="secondary"
+                    onChange={() => {
+                      setLoadingLight2(true);
+                      s.emit("toggleLight2", !checkedLight2);
+                    }}
+                  />
+                )
+              }
+              label={
+                <Typography variant="h5" component="h5" fontSize={"inherit"}>
+                  {checkedLight2 ? (
+                    <LightbulbIcon
+                      sx={{ verticalAlign: "middle" }}
+                      color="secondary"
+                      fontSize="inherit"
+                      style={{
+                        transition: ` all 1s ease-in-out`,
+                        animation: `${
+                          checkedLight2 && "neon"
+                        } 1.5s ease-in-out infinite alternate`,
+                      }}
+                    />
+                  ) : (
+                    <LightbulbOutlinedIcon
+                      sx={{ verticalAlign: "middle" }}
+                      color="secondary"
+                      fontSize="inherit"
+                      style={{
+                        transition: ` all 1s ease-in-out`,
+                      }}
+                    />
+                  )}
+                  Đèn 2
                 </Typography>
               }
             />

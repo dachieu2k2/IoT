@@ -41,10 +41,20 @@ const columns: GridColDef[] = [
               animation: `spin 1s linear infinite`,
             }}
           />
-        ) : (
+        ) : params.value === "Light" ? (
           <LightbulbIcon
             sx={{ verticalAlign: "middle", mr: 2 }}
             color="success"
+            fontSize="medium"
+            style={{
+              animation: `neon
+              1.5s ease-in-out infinite alternate`,
+            }}
+          />
+        ) : (
+          <LightbulbIcon
+            sx={{ verticalAlign: "middle", mr: 2 }}
+            color="secondary"
             fontSize="medium"
             style={{
               animation: `neon

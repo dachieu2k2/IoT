@@ -4,6 +4,7 @@ data_sensor.id,
 data_sensor.temperature, 
 data_sensor.humidity, 
 data_sensor.light, 
+data_sensor.dust, 
 CONVERT(DATE_FORMAT(data_sensor.createAt, '%d/%m/%Y %h:%m %p'), CHAR) AS `createAt`,
 CONCAT(
     CONVERT(data_sensor.id, CHAR), 
@@ -14,9 +15,11 @@ CONCAT(
     " ",
     data_sensor.light, 
     " ",
+    data_sensor.dust, 
+    " ",
     CONVERT(DATE_FORMAT(data_sensor.createAt, '%d/%m/%Y %h:%m %p'), CHAR)
     ) AS searchCol 
-FROM data_sensor
+FROM data_sensor;
 
 CREATE VIEW view_action_history AS
 SELECT 
@@ -33,7 +36,7 @@ CONCAT(
     " ",
     CONVERT(DATE_FORMAT(action_history.createAt, '%d/%m/%Y %h:%m %p'), CHAR)
     ) AS searchCol 
-FROM action_history
+FROM action_history;
 
 SELECT day(data_sensor.createAt), month(data_sensor.createAt), year(data_sensor.createAt), hour(data_sensor.createAt), minute(data_sensor.createAt) FROM data_sensor;
 
@@ -56,4 +59,9 @@ CREATE TABLE `data_sensor` (
   `createAt` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `data_sensor`
+ADD `dust` varchar(255) DEFAULT(0);
+
+
 

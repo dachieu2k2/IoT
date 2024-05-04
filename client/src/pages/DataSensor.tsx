@@ -26,6 +26,7 @@ const columns: GridColDef[] = [
   { field: "temperature", headerName: "Nhiệt độ", width: 200 },
   { field: "humidity", headerName: "Độ ẩm", width: 200 },
   { field: "light", headerName: "Ánh sáng", width: 200 },
+  { field: "dust", headerName: "Độ bụi", width: 200 },
   {
     field: "createAt",
     headerName: "Thời gian",
