@@ -44,6 +44,8 @@ MQTTClient.on('connect', () => {
   MQTTClient.subscribe(['dataSensor', 'device/led/message', 'device/fan/message', 'device/led', 'device/fan'])
 })
 
+let test = 0
+
 MQTTClient.on('message', (topic, payload) => {
   // message is Buffer
   console.log('Received Message:', topic, payload.toString())
@@ -57,54 +59,61 @@ MQTTClient.on('message', (topic, payload) => {
       valueLight: dataFromMqtt.light,
       label: count
     }
-    saveDataSensor({
-      humidity: newData.valueHumidity.toString(),
-      temperature: newData.valueTemperature.toString(),
-      light: newData.valueLight.toString()
-    })
+    if (newData.valueHumidity)
+      saveDataSensor({
+        humidity: newData.valueHumidity.toString(),
+        temperature: newData.valueTemperature.toString(),
+        light: newData.valueLight.toString()
+      })
 
+    io.emit('dataUpdate', newData)
     // console.log(newData)
     // io.emit('dataUpdate', newData)
-    io.emit('dataUpdate', newData)
   }
 
   if (topic === 'device/led/message') {
     const dataFromMqtt = JSON.parse(payload.toString())
-    console.log(dataFromMqtt)
-    saveActionHistory({ act: dataFromMqtt.status === 'true' ? 'On' : 'Off', device: 'Light' })
-    io.emit('device/led/message', dataFromMqtt)
+    console.log(dataFromMqtt, 'Chạy trước')
+    if (dataFromMqtt) {
+      saveActionHistory({ act: dataFromMqtt.status === 'true' ? 'On' : 'Off', device: 'Light' })
+      io.emit('device/led/message', dataFromMqtt)
+    }
+    test++
+    console.log(test, 'Chạy sau')
   }
   if (topic === 'device/fan/message') {
     const dataFromMqtt = JSON.parse(payload.toString())
     console.log(dataFromMqtt)
-    saveActionHistory({ act: dataFromMqtt.status === 'true' ? 'On' : 'Off', device: 'Fan' })
-    io.emit('device/fan/message', dataFromMqtt)
+    if (dataFromMqtt) {
+      saveActionHistory({ act: dataFromMqtt.status === 'true' ? 'On' : 'Off', device: 'Fan' })
+      io.emit('device/fan/message', dataFromMqtt)
+    }
   }
 })
 
 io.on('connection', (socket) => {
-  if (timeChange) clearInterval(timeChange)
+  // if (timeChange) clearInterval(timeChange)
   console.log('connected to socket.io', socket.id)
-  timeChange = setInterval(() => {
-    // count += 1
-    const newData = {
-      label: count,
-      valueTemperature: Math.floor(Math.random() * 100),
-      valueHumidity: Math.floor(Math.random() * 100),
-      valueLight: Math.floor(Math.random() * 100)
-    }
-    // saveDataSensor({
-    //   humidity: newData.valueHumidity.toString(),
-    //   temperature: newData.valueTemperature.toString(),
-    //   light: newData.valueLight.toString()
-    // })
+  // timeChange = setInterval(() => {
+  // count += 1
+  // const newData = {
+  //   label: count,
+  //   valueTemperature: Math.floor(Math.random() * 100),
+  //   valueHumidity: Math.floor(Math.random() * 100),
+  //   valueLight: Math.floor(Math.random() * 100)
+  // }
+  // saveDataSensor({
+  //   humidity: newData.valueHumidity.toString(),
+  //   temperature: newData.valueTemperature.toString(),
+  //   light: newData.valueLight.toString()
+  // })
 
-    // saveActionHistory({
-    //     device: Math.floor(Math.random() * 100) > 50 ? 'Light' : 'Fan',
-    //     act: Math.floor(Math.random() * 100) > 50 ? 'Off' : 'On',
-    // })
-    // io.emit('dataUpdate', newData)
-  }, 1000)
+  // saveActionHistory({
+  //     device: Math.floor(Math.random() * 100) > 50 ? 'Light' : 'Fan',
+  //     act: Math.floor(Math.random() * 100) > 50 ? 'Off' : 'On',
+  // })
+  // io.emit('dataUpdate', newData)
+  // }, 1000)
 
   socket.on('toggleLight', (payload) => {
     console.log('run socket')
